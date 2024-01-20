@@ -4,7 +4,8 @@ from django.db import models
 class Company(models.Model):
     """
     Модель компании в иерархии сети по продаже электроники.
-    Компания может быть заводом, розничной сетью или индивидуальным предпринимателем
+    Компания может быть заводом, розничной сетью
+    или индивидуальным предпринимателем
     """
     name = models.CharField(max_length=200, verbose_name='название компании')
     company_type_choices = [
@@ -22,10 +23,20 @@ class Company(models.Model):
     city = models.CharField(max_length=150, verbose_name='город')
     street = models.CharField(max_length=150, verbose_name='улица')
     house_number = models.CharField(max_length=10, verbose_name='номер дома')
-    supplier = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='clients',
+    supplier = models.ForeignKey('self', on_delete=models.SET_NULL,
+                                 null=True, blank=True, related_name='clients',
                                  verbose_name='поставщик')
-    debt = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='задолженность перед поставщиком')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='дата создания')
+    debt = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name='задолженность перед поставщиком',
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='дата создания'
+    )
 
     def __str__(self):
         return self.name
@@ -34,8 +45,10 @@ class Company(models.Model):
     def hierarchy_level(self):
         """
         Определяет и возвращает уровень иерархии компании.
-        Заводы всегда находятся на 0 уровне. Для розничных сетей и индивидуальных предпринимателей уровень иерархии
-        зависит от типа их поставщика. Если поставщик не указан, уровень считается максимальным.
+        Заводы всегда находятся на 0 уровне. Для розничных сетей и
+        индивидуальных предпринимателей уровень иерархии
+        зависит от типа их поставщика. Если поставщик не указан,
+        уровень считается максимальным.
         :return: уровень иерархии компании
         """
         # Завод всегда находится на 0 уровне
@@ -60,8 +73,11 @@ class Product(models.Model):
     """
     name = models.CharField(max_length=200, verbose_name='название товара')
     model = models.CharField(max_length=200, verbose_name='модель')
-    release_date = models.DateField(verbose_name='дата выхода продукта на рынок')
-    company = models.ForeignKey(Company, related_name='products', on_delete=models.CASCADE,
+    release_date = models.DateField(
+        verbose_name='дата выхода продукта на рынок'
+    )
+    company = models.ForeignKey(Company, related_name='products',
+                                on_delete=models.CASCADE,
                                 verbose_name='компания-владелец')
 
     def __str__(self):
